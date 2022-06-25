@@ -24,7 +24,11 @@ If you're using Windows, check out the following resources for help with running
 
 How to Start the RediSolar Application
 ---
-
+### Before anything else, start your redis server.
+If having Redis installed in localhost:
+```shell
+$sudo service redis-server restart
+```
 ### When using Redis on localhost, port 6379 with no password:
 
 1. Run `mvn package` to build your application.
