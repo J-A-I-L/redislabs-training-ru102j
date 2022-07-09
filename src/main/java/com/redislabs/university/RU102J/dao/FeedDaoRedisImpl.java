@@ -3,10 +3,8 @@ package com.redislabs.university.RU102J.dao;
 import com.redislabs.university.RU102J.api.MeterReading;
 import redis.clients.jedis.*;
 
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FeedDaoRedisImpl implements FeedDao {
 
@@ -22,7 +20,19 @@ public class FeedDaoRedisImpl implements FeedDao {
     @Override
     public void insert(MeterReading meterReading) {
         // START Challenge #6
+        try (Jedis jedis = jedisPool.getResource()) {
+            final Pipeline pipelined = jedis.pipelined();
+            pipelined.xadd(RedisSchema.getGlobalFeedKey(), StreamEntryID.NEW_ENTRY, meterReading.toMap(),
+                    globalMaxFeedLength, true);
+            pipelined.xadd(RedisSchema.getFeedKey(meterReading.getSiteId()), StreamEntryID.NEW_ENTRY, meterReading.toMap(),
+                    siteMaxFeedLength, true);
+            pipelined.sync();
+        }
         // END Challenge #6
+    }
+
+    private void insertForKey(String globalFeedKey, MeterReading meterReading, Long maxGlobalDays) {
+
     }
 
     @Override
